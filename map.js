@@ -189,6 +189,7 @@ $(document).ready(() => {
 
         setActiveMarker($(this), index) // set active marker
 
+        if (Map.zoom < 10) Map.setZoom(10)
         // Map.setZoom(16) // set zoom optional
         Map.panTo(selected_marker.getPosition()) // set map focus to marker
 
