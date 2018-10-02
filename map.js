@@ -120,11 +120,11 @@ $(document).ready(() => {
 
     // Scroll Content Container
     const scroll_container = $('.scroll-content')
-    const scroll_container_position = scroll_container[0].getBoundingClientRect().top
+    const scroll_container_position = scroll_container.offset().top
 
     // Bind Data to Each Item sidebar
     $('.maps__item').each(function () {
-        const position = $(this)[0].getBoundingClientRect().top - scroll_container_position
+        const position = $(this).offset().top - scroll_container_position
         $(this).attr('position-top', position)
     })
 
