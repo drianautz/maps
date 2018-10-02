@@ -88,10 +88,35 @@ function maps() {
 $(document).ready(() => {
     maps()
 
-    function setActiveMarker(el) {
+    const bounds = new google.maps.LatLngBounds()
+    // let infowindow_open
+    let MarkerFocus
+    let Markers = []
+
+    // Clustering
+    const MarkerCluster = new MarkerClusterer(Map, Markers,
+        {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'})
+
+    //Icon Marker Data
+    const IconMarker = {
+        Big: '/assets/img/map-big.png',
+        Small: '/assets/img/map-small.png',
+    }
+
+    function setActiveMarker(el, marker) {
+        if (MarkerFocus) MarkerFocus.setIcon(IconMarker.Small) // change latest marker to small
+
+        const marker_selected = typeof marker === 'number'
+            ? Markers[marker]
+            : marker
+
+        marker_selected.setIcon(IconMarker.Big)
+        MarkerFocus = marker_selected
+
         $('.maps__item').removeClass('marker-active')
         el.addClass('marker-active')
     }
+
 
     // Scroll Content Container
     const scroll_container = $('.scroll-content')
@@ -104,42 +129,38 @@ $(document).ready(() => {
     })
 
 
-    const bounds = new google.maps.LatLngBounds()
-    const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    let infowindow_open
-    let Markers = []
-
-    // Clustering
-    const MarkerCluster = new MarkerClusterer(Map, Markers,
-        {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'})
-
     Locations.forEach((loc, key) => {
         const marker = new google.maps.Marker({
             position: loc,
             map: Map,
+            icon: IconMarker.Small,
             title: `Map ${key}`,
         })
 
-        const infowindow = new google.maps.InfoWindow({
-            content: `Map Infowindow ${key}`
-        })
+        // const infowindow = new google.maps.InfoWindow({
+        //     content: `Map Infowindow ${key}`
+        // })
 
         // marker Listener Click
         marker.addListener('click', function () {
-            // To Close other infowindow if open
-            if (infowindow_open) infowindow_open.close()
-            infowindow_open = infowindow
 
-            infowindow.open(Map, marker)
+            // To Close other infowindow if open
+            // if (infowindow_open) infowindow_open.close()
+            // infowindow_open = infowindow
+
+            // infowindow.open(Map, marker)
 
             const el = $('.maps__item').eq(key) // sidebar left item by Index
-            setActiveMarker(el)
+            setActiveMarker(el, marker)
 
             Map.panTo(marker.getPosition()) // set map focus to marker
 
             // Scroll left sidebar
             const position = el.attr('position-top')
             scroll_container.scrollTop(position)
+
+            MarkerFocus = marker
+            marker.setIcon(IconMarker.Big)
 
         })
 
@@ -166,7 +187,7 @@ $(document).ready(() => {
 
         if (!selected_marker) return // list location only 4 if null return
 
-        setActiveMarker($(this)) // set active marker
+        setActiveMarker($(this), index) // set active marker
 
         // Map.setZoom(16) // set zoom optional
         Map.panTo(selected_marker.getPosition()) // set map focus to marker
